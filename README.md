@@ -1,6 +1,9 @@
 # California Housing Price Prediction
 
-This project predicts housing prices based on a dataset of California housing features. It includes a FastAPI application that serves predictions using a machine learning model. The project is organized into modular scripts for data preprocessing, feature engineering, and model training. The FastAPI application serves the model via a REST API and provides a health check endpoint.
+This project predicts housing prices based on a dataset of California housing features ([source](https://www.kaggle.com/datasets/camnugent/california-housing-prices)).
+It includes a FastAPI application that serves predictions using a machine learning model.
+The project is organized into modular scripts for data preprocessing, feature engineering, and model training.
+The FastAPI application serves the model via a REST API and provides a prediction and a health check endpoint.
 
 ## Table of Contents
 
@@ -33,12 +36,14 @@ The project follows modular and scalable architecture, utilizing error handling,
 ## Installation
 
 1. **Clone the repository:**
+
  ```
    git clone https://github.com/yourusername/california-housing-price-prediction.git
    cd california-housing-price-prediction
 ```
 
 2. **Create a virtual environment (optional but recommended):**
+
 ```python
 python -m venv myenv
 source myenv/bin/activate
@@ -46,16 +51,16 @@ source myenv/bin/activate
 ```
 
 3. **Install the required dependencies:**
+
 ```python
 pip install -r requirements.txt
 ```
 
 ---
 
-
 ## Usage
 
-### 1. Start the FastAPI application:
+### 1. Start the FastAPI application
 
 Run the FastAPI server locally to access the prediction API.
 
@@ -71,6 +76,7 @@ uvicorn app.main:app --reload
 - **Description:** Accepts a JSON payload with features and returns the predicted housing price.
 
 **Request Body (JSON):**
+
 ```json
 {
   "features": {
@@ -89,6 +95,7 @@ uvicorn app.main:app --reload
 ```
 
 **Response:**
+
 ```json
 {
   "predicted_price": 168000.0,
@@ -102,6 +109,7 @@ uvicorn app.main:app --reload
 - **Description:** Returns the health status of the API. It checks whether the models are loaded properly.
 
 **Response:**
+
 ```json
 {
  "status": "healthy"
@@ -172,10 +180,62 @@ california-housing-price-prediction/
 - **XGBoost:** Optimized gradient boosting.
 - **CatBoost:** Efficient gradient boosting for categorical features.
 
-**Metrics for Evaluation:**
-- RMSE (Root Mean Squared Error)
-- MAPE (Mean Absolute Percentage Error)
-- MASE (Mean Absolute Scaled Error)
+### Metrics for Evaluation:
+
+##### 1. Root Mean Squared Error (RMSE)
+
+- **Why Chosen?**
+  - RMSE penalizes large errors more than smaller ones because it squares the errors. This is particularly useful when predicting house prices, where large deviations are more impactful (e.g., underpricing a house by $100,000 is a more critical error than by $1,000).
+  - It provides results in the same units as the target variable (e.g., dollars), making it easy to interpret.
+- **Strengths:**
+  - Sensitive to outliers, which is useful in datasets with significant price variations.
+- **Weaknesses:**
+  - Heavily affected by outliers, which can sometimes overly bias the metric.
+- **Justification:**
+  - RMSE is a standard metric in regression problems and provides a good measure of how well the model is capturing the variability in house prices.
+
+##### 2. Mean Absolute Percentage Error (MAPE)
+
+- **Why Chosen?**
+  - MAPE calculates the average percentage error, making it scale-independent and useful for comparing models across datasets with varying price ranges.
+  - It provides an intuitive understanding of the model's accuracy by showing errors as percentages.
+- **Strengths:**
+  - Easy to interpret for stakeholders since it expresses errors in relative terms.
+- **Weaknesses:**
+  - Can be skewed when actual values are close to zero, as the percentage error becomes disproportionately large.
+- **Justification:**
+  - MAPE is valuable for understanding how close predictions are to actual values in relative terms, especially when different house prices span multiple orders of magnitude.
+
+##### 3. Mean Absolute Scaled Error (MASE)
+
+- **Why Chosen?**
+  - MASE is designed to compare forecast accuracy across datasets and time series models. It scales the error based on a baseline (e.g., naive forecasting).
+  - It is particularly robust to different scales and units, making it a versatile metric.
+- **Strengths:**
+  - Not overly sensitive to outliers.
+  - Provides a baseline comparison, offering insights into whether the model outperforms a naive forecast.
+- **Weaknesses:**
+  - Less commonly used in some domains, which might make interpretation less familiar to non-technical stakeholders.
+- **Justification:**
+  - MASE adds another layer of insight by contextualizing the model’s performance relative to a naive approach.
+
+---
+
+#### Final Metric Choice
+
+While all three metrics are valuable for understanding different aspects of model performance, **RMSE** is chosen as the final evaluation metric. This decision is based on the following reasoning:
+
+- RMSE directly aligns with the project's primary goal of minimizing large pricing errors, which are particularly impactful in the context of housing price prediction.
+- It is interpretable in the same units as the target variable, making it more meaningful to stakeholders.
+- While MAPE and MASE provide additional insights, they are complementary metrics rather than the primary ones for this context. For instance:
+  - MAPE is useful for understanding percentage-based accuracy.
+  - MASE helps evaluate performance relative to a naive model.
+- RMSE balances sensitivity to large deviations (important for high-stakes predictions like housing prices) with interpretability, making it the most appropriate choice.
+
+
+The final metric for evaluating the model's performance is **RMSE**, supported by **MAPE** and **MASE** as complementary metrics for additional context and validation. This combination ensures a well-rounded assessment of the model's accuracy and robustness.
+
+---
 
 ### Model Versioning
 
@@ -225,7 +285,7 @@ To further improve and expand the California Housing Price Prediction project, t
    - Provide explanations for predictions using SHAP or LIME for model interpretability.
 
 7. **Scalability:**
-- **Cloud Deployment:**
+   - **Cloud Deployment:**
      - Deploy the application on cloud platforms such as AWS, Google Cloud Platform (GCP), or Azure to ensure high availability and fault tolerance.
      - Use managed services like AWS Elastic Beanstalk, Google App Engine, or Azure App Service for easier deployment and scaling.
    - **Containerization:**
@@ -254,8 +314,8 @@ To further improve and expand the California Housing Price Prediction project, t
      - Implement alerts for high traffic loads, slow response times, or server failures to enable proactive troubleshooting.
 
 9. **Integration with External Systems:**
-   - Connect the API to real estate platforms or CRMs for seamless integration.
-   - Enable export of predictions and insights into commonly used file formats or systems.
+    - Connect the API to real estate platforms or CRMs for seamless integration.
+    - Enable export of predictions and insights into commonly used file formats or systems.
 
 10. **Enhanced Data Handling:**
     - Address missing data using imputation techniques instead of row dropping.
@@ -272,7 +332,6 @@ To further improve and expand the California Housing Price Prediction project, t
     - Integrate automated unit tests, regression tests, and performance tests to maintain code quality.
     - Enable deployment strategies like blue-green or canary deployments to minimize downtime during updates.
     - Add version control for models and data pipelines to track and manage changes effectively.
-
 
 ## License
 
