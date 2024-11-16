@@ -11,4 +11,3 @@ joblib==1.2.0
 matplotlib==3.7.1
 seaborn==0.12.2
 python-dotenv==0.21.1
-# pydantic==1.11.1
