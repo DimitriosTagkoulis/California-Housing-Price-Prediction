@@ -19,6 +19,7 @@ The FastAPI application serves the model via a REST API and provides a predictio
   - [Feature Engineering](#feature-engineering)
   - [Models](#models)
   - [Evaluation Metrics](#Evaluation-Metrics)
+- [Future-Work](#Future-Work)
 - [License](#license)
 
 ## Overview
