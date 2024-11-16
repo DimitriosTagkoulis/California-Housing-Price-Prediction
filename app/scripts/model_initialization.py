@@ -1,8 +1,13 @@
+"""
+Script Name: model_initialization.py
+Description: Handles data preprocessing, clustering, model training, evaluation, and saving the best-performing model. 
+             Also includes functionality for visualizing model results.
+Version: 1.0.0
+Author: Dimitris Tagkoulis
+"""
+
 import sys
 from pathlib import Path
-
-# Add the project root to the PYTHONPATH
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -25,33 +30,36 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Construct the path to the dataset
 def get_data_path():
-    """Returns the path to the housing dataset."""
+    """
+    Returns the path to the housing dataset.
+
+    Returns:
+    - pathlib.Path: Path to the dataset file.
+    """
     return BASE_DIR / "data" / "housing.csv"
 
 
 def load_and_preprocess_data():
-    """Load and preprocess the dataset."""
+    """
+    Load and preprocess the housing dataset, including feature engineering and clustering.
+
+    Returns:
+    - pd.DataFrame: Preprocessed dataset with clustering applied.
+    """
     try:
-        # Load data
         file_path = get_data_path()
         logger.info(f"Loading data from: {file_path}")
         df = pd.read_csv(file_path)
         logger.info(f"Data loaded successfully. Shape: {df.shape}")
 
-        # Apply feature engineering
         logger.info("Applying feature engineering...")
         df = feature_engineering(df)
-        logger.info(
-            "Feature engineering completed. Data shape after processing: %s", df.shape
-        )
+        logger.info("Feature engineering completed. Shape: %s", df.shape)
 
-        # Train and save KMeans clustering model
         logger.info("Training and applying KMeans clustering...")
         train_and_save_kmeans(df)
         df = apply_clustering(df, n_clusters=5)
-
         logger.info("Clustering applied successfully.")
         return df
 
@@ -61,7 +69,15 @@ def load_and_preprocess_data():
 
 
 def split_data(df):
-    """Split the data into training and testing sets."""
+    """
+    Splits the dataset into training and testing sets.
+
+    Parameters:
+    - df (pd.DataFrame): Preprocessed dataset.
+
+    Returns:
+    - tuple: Training and testing features (X_train, X_test) and targets (y_train, y_test).
+    """
     try:
         logger.info("Splitting data into training and testing sets...")
         X = df.drop(columns=["median_house_value"])
@@ -79,7 +95,18 @@ def split_data(df):
 
 
 def train_and_evaluate_models(X_train, X_test, y_train, y_test):
-    """Train and evaluate models."""
+    """
+    Trains and evaluates models using the provided data.
+
+    Parameters:
+    - X_train (pd.DataFrame): Training features.
+    - X_test (pd.DataFrame): Testing features.
+    - y_train (pd.Series): Training targets.
+    - y_test (pd.Series): Testing targets.
+
+    Returns:
+    - dict: Results of model evaluation.
+    """
     try:
         logger.info("Training and evaluating models...")
         model_results = train_and_evaluate(X_train, X_test, y_train, y_test)
@@ -91,7 +118,12 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test):
 
 
 def save_and_validate_best_model(model_results):
-    """Save the best-performing model and validate its correctness."""
+    """
+    Saves the best-performing model based on evaluation metrics.
+
+    Parameters:
+    - model_results (dict): Results of model evaluation.
+    """
     try:
         logger.info("Saving the best model...")
         save_best_model(model_results)
@@ -102,28 +134,22 @@ def save_and_validate_best_model(model_results):
 
 
 def plot_model_results(model_results):
+    """
+    Visualizes model evaluation metrics (RMSE, MAPE, MASE) using bar plots.
+
+    Parameters:
+    - model_results (dict): Results of model evaluation.
+    """
     try:
         logger.info("Plotting model results...")
-
-        # Convert the results into a pandas DataFrame for easier plotting
-        results_df = pd.DataFrame(model_results).T  # Transpose to have models as rows
-        logger.debug(f"DataFrame shape before reset_index: {results_df.shape}")
-        logger.debug(f"DataFrame contents before reset_index:\n{results_df}")
-
+        results_df = pd.DataFrame(model_results).T
         results_df.reset_index(inplace=True)
-        logger.debug(f"DataFrame shape after reset_index: {results_df.shape}")
-        logger.debug(f"DataFrame contents after reset_index:\n{results_df}")
-
-        # Rename columns properly, excluding the extra 'index' column
         results_df.columns = ["Model", "Algorithm", "RMSE", "MAPE", "MASE"]
 
-        # Set up the plotting style
         sns.set(style="whitegrid")
-
-        # Plot RMSE, MAPE, and MASE for each model
         fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-
         metrics = ["RMSE", "MAPE", "MASE"]
+
         for idx, metric in enumerate(metrics):
             sns.barplot(x="Model", y=metric, data=results_df, ax=axes[idx])
             axes[idx].set_title(f"{metric} for each Model")
@@ -141,20 +167,10 @@ def plot_model_results(model_results):
 
 if __name__ == "__main__":
     try:
-        # Step 1: Load and preprocess data
         df = load_and_preprocess_data()
-
-        # Step 2: Split data
         X_train, X_test, y_train, y_test = split_data(df)
-
-        # Step 3: Train and evaluate models
         model_results = train_and_evaluate_models(X_train, X_test, y_train, y_test)
-
-        # Step 4: Save the best model
         save_and_validate_best_model(model_results)
-
-        # Step 5: Plot results
         plot_model_results(model_results)
-
     except Exception as e:
         logger.error(f"Fatal error in model initialization script: {e}")
