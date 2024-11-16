@@ -1,13 +1,24 @@
-# predict.py
+"""
+Script Name: predict.py
+Description: Implements the /predict endpoint to handle housing price predictions. This script includes input validation, 
+             feature engineering, and model prediction logic for both clustering and regression models.
+Version: 1.0.0
+Author: Dimitris Tagkoulis
+"""
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ValidationError
 import pandas as pd
-import sys
-import os
 from app.scripts.preprocessing import feature_engineering
 from app.scripts.modeling_pipeline import load_model
 import logging
+import json
+from pathlib import Path
+
+
+class PredictionRequest(BaseModel):
+    features: dict
+
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -16,22 +27,11 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-from app.config.base import BASE_DIR  # Ensure this is correctly imported
+from app.config.base import BASE_DIR
 
 # Use BASE_DIR to construct absolute paths
 clustering_dir = BASE_DIR / "models" / "clustering"
 regression_dir = BASE_DIR / "models" / "regression"
-
-
-class PredictionRequest(BaseModel):
-    features: dict
-
-
-import json
-
-
-import json
-from pathlib import Path
 
 
 def load_feature_names(model_path):
@@ -74,7 +74,7 @@ def check_data_types(features):
 
         # If the feature is numeric (int or float), attempt to convert to float
         if isinstance(feature_value, (int, float)):
-            features[feature] = float(feature_value)  # Cast to float for consistency
+            features[feature] = float(feature_value)
         elif not isinstance(feature_value, expected_types_tuple):
             raise HTTPException(
                 status_code=400,
@@ -89,7 +89,7 @@ async def predict(request: PredictionRequest):
     logger.info("Received prediction request")
 
     # Extract features from request
-    features = request.dict()["features"]  # Extract the features dict
+    features = request.dict()["features"]
     logger.debug(f"Features extracted: {features}")
 
     try:
@@ -126,8 +126,8 @@ async def predict(request: PredictionRequest):
 
         # Align input data with the saved feature names
         for missing_feature in set(feature_names) - set(X.columns):
-            X[missing_feature] = 0  # Add missing columns with default value 0
-        X = X[feature_names]  # Reorder columns to match the training order
+            X[missing_feature] = 0
+        X = X[feature_names]
 
         # Check for missing values in the features (not the clusters) before applying KMeans
         if X.isnull().sum().any():
@@ -137,8 +137,8 @@ async def predict(request: PredictionRequest):
 
         # Add cluster column using KMeans model
         logger.info("Predicting clusters using KMeans model")
-        cluster_predictions = kmeans.predict(X)  # Get the cluster predictions
-        X["cluster"] = cluster_predictions  # Add cluster column to input_data
+        cluster_predictions = kmeans.predict(X)
+        X["cluster"] = cluster_predictions
         logger.debug(f"Cluster predictions: {cluster_predictions}")
 
         # Make prediction using regression model
