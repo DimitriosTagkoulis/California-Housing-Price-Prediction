@@ -1,3 +1,8 @@
+import sys
+from pathlib import Path
+
+# Add the project root to the PYTHONPATH
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,12 +23,6 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-import sys
-from pathlib import Path
-
-# Add the project root to the PYTHONPATH
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 
 # Construct the path to the dataset
