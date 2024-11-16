@@ -1,3 +1,10 @@
+"""
+Script Name: health.py
+Description: Implements the /health endpoint for checking the API health and ensuring model availability.
+Version: 1.0.0
+Author: Dimitris Tagkoulis
+"""
+
 from fastapi import APIRouter, HTTPException
 import os
 from app.scripts.modeling_pipeline import load_model
