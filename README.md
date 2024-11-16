@@ -18,6 +18,7 @@ The FastAPI application serves the model via a REST API and provides a predictio
   - [Data Preprocessing](#data-preprocessing)
   - [Feature Engineering](#feature-engineering)
   - [Models](#models)
+  - [Evaluation Metrics](#Evaluation-Metrics)
 - [License](#license)
 
 ## Overview
@@ -180,12 +181,12 @@ california-housing-price-prediction/
 - **XGBoost:** Optimized gradient boosting.
 - **CatBoost:** Efficient gradient boosting for categorical features.
 
-### Metrics for Evaluation:
+### Evaluation Metrics
 
 ##### 1. Root Mean Squared Error (RMSE)
 
 - **Why Chosen?**
-  - RMSE penalizes large errors more than smaller ones because it squares the errors. This is particularly useful when predicting house prices, where large deviations are more impactful (e.g., underpricing a house by $100,000 is a more critical error than by $1,000).
+  - RMSE penalizes large errors more than smaller ones because it squares the errors. This is particularly useful when predicting house prices, where large deviations are more impactful (e.g., underpricing a house by 100,000 is a more critical error than by 1,000).
   - It provides results in the same units as the target variable (e.g., dollars), making it easy to interpret.
 - **Strengths:**
   - Sensitive to outliers, which is useful in datasets with significant price variations.
