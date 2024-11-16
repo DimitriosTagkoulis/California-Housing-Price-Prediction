@@ -1,3 +1,11 @@
+"""
+Script Name: api_client.py
+Description: Sample Script that sends a POST request to the FastAPI prediction endpoint with housing features and displays the predicted
+             house price and cluster information.
+Version: 1.0.0
+Author: Dimitris Tagkoulis
+"""
+
 import requests
 
 # URL of the FastAPI prediction endpoint
@@ -19,13 +27,34 @@ features = {
     }
 }
 
-# Send POST request to the API
-response = requests.post(url, json=features)
 
-# Check if the request was successful
-if response.status_code == 200:
-    prediction = response.json()
-    print(f"Predicted house price: {prediction['predicted_price']}")
-    print(f"Cluster: {prediction['cluster']}")
-else:
-    print(f"Error: {response.status_code}, {response.text}")
+def send_prediction_request(url, features):
+    """
+    Sends a POST request to the FastAPI prediction endpoint with given features.
+
+    Parameters:
+    - url (str): URL of the prediction endpoint.
+    - features (dict): Dictionary containing input features for prediction.
+
+    Returns:
+    - dict: Prediction results if successful.
+    - None: If the request fails.
+    """
+    try:
+        response = requests.post(url, json=features)
+
+        if response.status_code == 200:
+            prediction = response.json()
+            print(f"Predicted house price: {prediction['predicted_price']}")
+            print(f"Cluster: {prediction['cluster']}")
+            return prediction
+        else:
+            print(f"Error: {response.status_code}, {response.text}")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
+
+
+if __name__ == "__main__":
+    send_prediction_request(url, features)
