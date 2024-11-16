@@ -19,6 +19,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+import sys
+from pathlib import Path
+
+# Add the project root to the PYTHONPATH
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+
 
 # Construct the path to the dataset
 def get_data_path():
@@ -97,34 +103,28 @@ def save_and_validate_best_model(model_results):
 
 
 def plot_model_results(model_results):
-    """Visualize the performance of the models."""
     try:
         logger.info("Plotting model results...")
 
         # Convert the results into a pandas DataFrame for easier plotting
         results_df = pd.DataFrame(model_results).T  # Transpose to have models as rows
-        results_df.reset_index(inplace=True)
+        logger.debug(f"DataFrame shape before reset_index: {results_df.shape}")
+        logger.debug(f"DataFrame contents before reset_index:\n{results_df}")
 
-        # Dynamically set column names based on the actual number of metrics
-        expected_columns = ["Model"] + list(
-            model_results[next(iter(model_results))].keys()
-        )
-        if len(results_df.columns) != len(expected_columns):
-            raise ValueError(
-                f"Mismatch in column lengths. Expected: {len(expected_columns)}, "
-                f"Got: {len(results_df.columns)}"
-            )
-        results_df.columns = expected_columns
+        results_df.reset_index(inplace=True)
+        logger.debug(f"DataFrame shape after reset_index: {results_df.shape}")
+        logger.debug(f"DataFrame contents after reset_index:\n{results_df}")
+
+        # Rename columns properly, excluding the extra 'index' column
+        results_df.columns = ["Model", "Algorithm", "RMSE", "MAPE", "MASE"]
 
         # Set up the plotting style
         sns.set(style="whitegrid")
 
-        # Plot metrics for each model
-        fig, axes = plt.subplots(
-            1, len(expected_columns) - 1, figsize=(18, 6)
-        )  # Adjust for number of metrics
+        # Plot RMSE, MAPE, and MASE for each model
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
-        metrics = expected_columns[1:]  # Exclude the "Model" column
+        metrics = ["RMSE", "MAPE", "MASE"]
         for idx, metric in enumerate(metrics):
             sns.barplot(x="Model", y=metric, data=results_df, ax=axes[idx])
             axes[idx].set_title(f"{metric} for each Model")
@@ -135,7 +135,6 @@ def plot_model_results(model_results):
         plt.tight_layout()
         plt.show()
         logger.info("Model results plotted successfully.")
-
     except Exception as e:
         logger.error(f"Error during result plotting: {e}")
         raise
